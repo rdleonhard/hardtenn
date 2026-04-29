@@ -1,3 +1,16 @@
+// EmailJS Configuration
+// TODO: Replace these with your EmailJS credentials after setting up your account
+const EMAILJS_CONFIG = {
+  publicKey: "YOUR_PUBLIC_KEY",      // Get from EmailJS Dashboard > Account > API Keys
+  serviceId: "YOUR_SERVICE_ID",      // Get from EmailJS Dashboard > Email Services
+  templateId: "YOUR_TEMPLATE_ID"     // Get from EmailJS Dashboard > Email Templates
+};
+
+// Initialize EmailJS when the script loads
+if (typeof emailjs !== 'undefined') {
+  emailjs.init(EMAILJS_CONFIG.publicKey);
+}
+
 // Mobile Navigation Toggle
 const navToggle = document.getElementById("navToggle");
 const navMenu = document.getElementById("navMenu");
@@ -231,11 +244,33 @@ if (contactForm) {
       if (btnLoader) btnLoader.style.display = "inline-block";
     }
 
-    // Simulate form submission (replace with actual API call)
+    // Send email using EmailJS
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate API call
+      // Check if EmailJS is configured
+      if (!EMAILJS_CONFIG.publicKey || EMAILJS_CONFIG.publicKey === "YOUR_PUBLIC_KEY") {
+        throw new Error("EmailJS is not configured. Please set up your EmailJS credentials.");
+      }
 
-      console.log("Form submitted:", data);
+      // Check if EmailJS library is loaded
+      if (typeof emailjs === 'undefined') {
+        throw new Error("EmailJS library failed to load. Please check your internet connection.");
+      }
+
+      // Prepare email template parameters
+      const templateParams = {
+        from_name: data.name,
+        from_email: data.email,
+        phone: data.phone || "Not provided",
+        message: data.message,
+        to_email: "joseph@hardtenn.com"
+      };
+
+      // Send email using EmailJS
+      await emailjs.send(
+        EMAILJS_CONFIG.serviceId,
+        EMAILJS_CONFIG.templateId,
+        templateParams
+      );
 
       // Show success message
       showToast("Thank you for your message! We will get back to you soon.", "success");
@@ -273,8 +308,8 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, observerOptions);
 
-// Observe service cards and project cards
-document.querySelectorAll(".service-card, .project-card").forEach((card) => {
+// Observe polished content cards
+document.querySelectorAll(".service-card, .project-card, .gallery-item, .process-step, .contact-card, .info-item").forEach((card) => {
   card.style.opacity = "0";
   card.style.transform = "translateY(20px)";
   card.style.transition = "opacity 0.6s ease, transform 0.6s ease";
